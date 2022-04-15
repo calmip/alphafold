@@ -20,10 +20,24 @@ from typing import Optional
 
 from absl import logging
 
+import os, pathlib
 
 @contextlib.contextmanager
 def tmpdir_manager(base_dir: Optional[str] = None):
   """Context manager that deletes a temporary directory on exit."""
+
+  # added by calmip
+  if base_dir == None:
+     if 'ALPHAFOLD_TMPDIR' in os.environ:
+         base_dir = os.environ['ALPHAFOLD_TMPDIR']
+     else:
+         base_dir = '/tmp'
+
+     try:
+        os.mkdir(base_dir)
+     except:
+        pass
+
   tmpdir = tempfile.mkdtemp(dir=base_dir)
   try:
     yield tmpdir
