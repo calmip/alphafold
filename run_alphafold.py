@@ -112,6 +112,11 @@ flags.DEFINE_integer('num_multimer_predictions_per_model', 5, 'How many '
                      'generated per model. E.g. if this is 2 and there are 5 '
                      'models then there will be 10 predictions per input. '
                      'Note: this FLAG only applies if model_preset=multimer')
+flags.DEFINE_boolean('only_precompute_msas', False, 'Whether to leave alphafold '
+                     'after the MSAs stage, giving an opportunity to run MSAs stage '
+                     'on some infrastructure and AI stage on another one, as the technical '
+                     'requirements are different for both stages. To be used in conjunction with '
+                     'the --use_precomputed_msas switch for the AI stage')
 flags.DEFINE_boolean('use_precomputed_msas', False, 'Whether to read MSAs that '
                      'have been written to disk instead of running the MSA '
                      'tools. The MSA files are looked up in the output '
@@ -178,6 +183,10 @@ def predict_structure(
   features_output_path = os.path.join(output_dir, 'features.pkl')
   with open(features_output_path, 'wb') as f:
     pickle.dump(feature_dict, f, protocol=4)
+
+  # Added by calmip - return here if only_precompute_msas
+  if FLAGS.only_precompute_msas:
+      return
 
   unrelaxed_pdbs = {}
   relaxed_pdbs = {}
